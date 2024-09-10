@@ -1,7 +1,26 @@
 controller.up.onEvent(ControllerButtonEvent.Pressed, function () {
     controller.moveSprite(mySprite, 100, 100)
 })
+controller.A.onEvent(ControllerButtonEvent.Pressed, function () {
+    game.reset()
+})
+info.onCountdownEnd(function () {
+    Shark.follow(mySprite, 50)
+})
+info.onLifeZero(function () {
+    // Bugged?
+    game.gameOver(false)
+})
+info.onScore(50, function () {
+    sprites.destroy(Shark)
+    game.gameOver(true)
+})
+sprites.onOverlap(SpriteKind.Player, SpriteKind.Enemy, function (sprite, otherSprite) {
+    info.changeLifeBy(-1)
+})
+let Shark: Sprite = null
 let mySprite: Sprite = null
+info.setLife(1)
 mySprite = sprites.create(img`
     . . . . . b b b b b b . . . . . 
     . . . b b 9 9 9 9 9 9 b b . . . 
@@ -20,6 +39,25 @@ mySprite = sprites.create(img`
     . . . b b 5 5 5 5 5 5 b b . . . 
     . . . . . b b b b b b . . . . . 
     `, SpriteKind.Player)
+Shark = sprites.create(img`
+    ..............cfff..............
+    ............ccddbf..............
+    ...........cbddbff.........ccc..
+    ..........fccbbcf.........cbbc..
+    ...fffffffccccccff.......cdbc...
+    .ffcbbbbbbbbbbbbbcfff....cdbf...
+    fcbbbbbbbbbcbbbbbbcccff.cdbf....
+    fbcbbbbffbbbcbcbbbcccccffdcf....
+    fbb1111ffbbbcbcbbbccccccbbcf....
+    .fb11111111bbcbbbccccccccbbcf...
+    ..fccc33cb11bbbbcccccccfffbbf...
+    ...fc131c111bbbcccccbdbc..fbbf..
+    ....f33c111cbbccdddddbc....fff..
+    .....ff1111fdbbccddbcc..........
+    .......cccccfdbbbfcc............
+    .............fffff..............
+    `, SpriteKind.Enemy)
+Shark.setPosition(24, 68)
 scene.setBackgroundImage(img`
     9999999999999999bbbbbb66666666b777777777777777777777777777777777777d7669999999999999999999999999bbbbbb66666666b777777777777777777777777777777777777d766999999999
     999999999999999997bbbbbbbbbbbbb7777777777777777777777777777777777777666999999999999999999999999997bbbbbbbbbbbbb7777777777777777777777777777777777777666999999999
@@ -143,6 +181,10 @@ scene.setBackgroundImage(img`
     9999999999999666666666666666666666666666667777777769999999999999999999999999999999999999999996666666666666666666666666666677777777699999999999999999999999999999
     `)
 scene.setBackgroundColor(9)
+info.startCountdown(5)
 forever(function () {
     music.play(music.stringPlayable("C D E E D D F F ", 120), music.PlaybackMode.UntilDone)
+})
+game.onUpdateInterval(500, function () {
+    info.changeScoreBy(1)
 })
